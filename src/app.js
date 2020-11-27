@@ -5,7 +5,7 @@ import logger from 'morgan';
 import createError from 'http-errors';
 import cors from 'cors';
 
-import exampleRouter from './routes/example';
+import exampleRouter from './modules/routes/example';
 
 const app = express();
 
