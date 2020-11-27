@@ -1,24 +1,19 @@
 import cheerio from 'cheerio';
 import curl from 'curl';
 import arrayRange from 'array-range';
+import util from 'util';
 
-import { INDEXES_CONFIG } from '../constants';
+import { INDEXES_CONFIG, info, error } from '../constants';
 
 const PAGINATION_IDENTIFIER = '.page-last';
 
 /**
  * Fetches the number of pages to get data for
  *
- * @param {string} stockIndex The current stock index we want the pages for
+ * @param {string} url The url to fetch the tickers
  * @returns {Promise.<number>} The number of pages for the index
  */
-function getNumberOfPages(stockIndex) {
-  const url = INDEXES_CONFIG.getTickersLink(stockIndex);
-
-  if (!url) {
-    throw new Error(`Could not find where to grab stock data for ${stockIndex}`);
-  }
-
+function getNumberOfPages(url) {
   return new Promise((resolve, reject) => {
     curl.get(url, (err, response, body) => {
       try {
@@ -34,10 +29,9 @@ function getNumberOfPages(stockIndex) {
         const intNumPages = parseInt(numPages, 10);
 
         resolve(intNumPages);
-      } catch (error) {
-        reject(
-          new Error(`Could not grab number of pages needed from page: ${url}, error: ${error}`),
-        );
+      } catch (e) {
+        error('The response from curl was: %O', response);
+        reject(new Error(`Could not grab number of pages needed from page: ${url}, error: ${e}`));
       }
     });
   });
@@ -52,16 +46,22 @@ function getNumberOfPages(stockIndex) {
 async function getRawTickersForAllPages(stockIndex) {
   const url = INDEXES_CONFIG.getTickersLink(stockIndex);
 
-  const numPages = await getNumberOfPages(stockIndex);
-
   if (!url) {
     throw new Error(`Could not find where to grab stock data for ${stockIndex}`);
   }
 
+  const numPages = await getNumberOfPages(url);
+
+  info('The number of pages to search for data: %s', numPages);
+
   const tickerTasks = arrayRange(1, numPages + 1).map(
     (pageNumber) => new Promise((resolve, reject) => {
+      const fetchUrl = `${url}?page=${pageNumber}`;
+
+      info('Fetching tickers from URL: %s', fetchUrl);
+
       // fetch info from page
-      curl.get(`${url}?page=${pageNumber}`, (err, response, body) => {
+      curl.get(fetchUrl, (err, response, body) => {
         // attempt to parse tickers
         try {
           const $ = cheerio.load(body);
@@ -73,9 +73,9 @@ async function getRawTickersForAllPages(stockIndex) {
             .get();
 
           resolve(tickers);
-        } catch (error) {
+        } catch (e) {
           reject(
-            new Error(`Could not grab number of pages needed from page: ${url}, error: ${error}`),
+            new Error(`Could not grab number of pages needed from page: ${url}, error: ${e}`),
           );
         }
       });
@@ -93,9 +93,13 @@ async function getRawTickersForAllPages(stockIndex) {
  * @returns {Array.<string>} List of tickers for the current index
  */
 async function fetchTickers(stockIndex) {
-  const baseTickers = await getRawTickersForAllPages(stockIndex);
+  info('Fetching tickers for this index: %s', stockIndex);
 
-  return baseTickers.flat();
+  const tickers = (await getRawTickersForAllPages(stockIndex)).flat();
+
+  info('Found these tickers: %O', util.inspect(tickers, { maxArrayLength: null }));
+
+  return tickers;
 }
 
 export default fetchTickers;
