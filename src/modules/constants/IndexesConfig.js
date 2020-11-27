@@ -25,10 +25,6 @@ class IndexesConfig {
         fundamentals_loc:
           'https://www.lse.co.uk/share-prices/indices/ftse-all-share/constituents.html',
       },
-      FTSE_SMALL_CAP: {
-        tickers_loc:
-          'https://www.londonstockexchange.com/indices/ftse-aim-all-share/constituents/table',
-      },
     });
   }
 
