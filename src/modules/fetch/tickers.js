@@ -23,12 +23,13 @@ function getNumberOfPages(stockIndex) {
     curl.get(url, (err, response, body) => {
       try {
         const $ = cheerio.load(body);
-        const numPages = new URL(
-          $(PAGINATION_IDENTIFIER)
-            .first()
-            .attr('href'),
-          'https://example.com',
-        ).searchParams.get('page');
+
+        const pagesUrl = $(PAGINATION_IDENTIFIER)
+          .first()
+          .attr('href');
+
+        const searchParams = pagesUrl.split('?')[1];
+        const numPages = new URLSearchParams(searchParams).get('page');
 
         const intNumPages = parseInt(numPages, 10);
 
