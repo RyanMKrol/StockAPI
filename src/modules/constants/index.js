@@ -1,5 +1,6 @@
 import { info, error } from './logger';
 import INDEXES_CONFIG from './IndexesConfig';
+import GMAIL_CREDENTIALS from '../../../credentials/gmail.json';
 
 const SUPPORTED_ATTRIBUTES = {
   REVENUE: 'Revenue',
@@ -7,6 +8,12 @@ const SUPPORTED_ATTRIBUTES = {
   OPERATING_PROFIT: 'Operating Profit',
 };
 
+const API_STORAGE_KEYS = Object.freeze({
+  TICKERS: 'tickers',
+  FUNDAMENTALS: 'fundamentals',
+  HEATMAPS: 'heatmaps',
+});
+
 export {
-  INDEXES_CONFIG, info, error, SUPPORTED_ATTRIBUTES,
+  INDEXES_CONFIG, info, error, SUPPORTED_ATTRIBUTES, API_STORAGE_KEYS, GMAIL_CREDENTIALS,
 };
