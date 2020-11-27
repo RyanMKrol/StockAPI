@@ -5,6 +5,7 @@ import MailSender from 'noodle-email';
 
 import { GMAIL_CREDENTIALS } from '../modules/constants';
 import updateTickersData from './tickers';
+import updateFundamentalsData from './fundamentals';
 
 const mailClient = new MailSender(GMAIL_CREDENTIALS);
 mailClient.setFrom('"StockAPI" <ryankrol.m@gmail.com>');
@@ -35,6 +36,7 @@ async function updateServiceData() {
  */
 async function main() {
   await updateTickersData();
+  await updateFundamentalsData();
 }
 
 export default updateServiceData;

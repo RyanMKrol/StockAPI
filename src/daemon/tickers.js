@@ -1,3 +1,5 @@
+import util from 'util';
+
 import SERVER_CACHE from '../modules/data_structures';
 import { API_STORAGE_KEYS, INDEXES_CONFIG, info } from '../modules/constants';
 import { fetchTickers } from '../modules/fetch';
@@ -25,7 +27,10 @@ async function updateTickersData() {
 
   SERVER_CACHE.storeData(API_STORAGE_KEYS.TICKERS, tickersData);
 
-  info('Finished the tickers data update');
+  info(
+    'Finished the tickers data update, new state of the cache: %O',
+    util.inspect(SERVER_CACHE, { maxArrayLength: null, depth: 10 }),
+  );
 }
 
 export default updateTickersData;
