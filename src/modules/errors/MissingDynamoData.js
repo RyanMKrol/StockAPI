@@ -1,7 +1,7 @@
 /**
- * Used whenever a fetch to get fundamentals data fails
+ * Used whenever the Dynamo table does not have the data we're looking for
  */
-class FundamentalsFetchFailed extends Error {
+class MissingDynamoData extends Error {
   /**
    * @param {...any} params Anything you want passing to the Error constructor
    */
@@ -11,12 +11,12 @@ class FundamentalsFetchFailed extends Error {
 
     // Maintains proper stack trace for where our error was thrown (only available on V8)
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, FundamentalsFetchFailed);
+      Error.captureStackTrace(this, MissingDynamoData);
     }
 
-    this.Error = 'FundamentalsFetchFailed';
-    this.StatusCode = 500;
+    this.Error = 'MissingDynamoData';
+    this.StatusCode = 404;
   }
 }
 
-export default FundamentalsFetchFailed;
+export default MissingDynamoData;
