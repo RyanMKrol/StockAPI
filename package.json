@@ -17,6 +17,7 @@
   "dependencies": {
     "@babel/polyfill": "^7.10.4",
     "array-range": "^1.0.1",
+    "async": "^3.2.0",
     "cheerio": "^1.0.0-rc.3",
     "cookie-parser": "^1.4.4",
     "core-js": "^3.6.5",

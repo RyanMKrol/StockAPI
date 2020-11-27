@@ -22,6 +22,8 @@ class IndexesConfig {
       FTSE_ALL_SHARE: {
         tickers_loc:
           'https://www.londonstockexchange.com/indices/ftse-all-share/constituents/table',
+        fundamentals_loc:
+          'https://www.lse.co.uk/share-prices/indices/ftse-all-share/constituents.html',
       },
       FTSE_SMALL_CAP: {
         tickers_loc:
@@ -39,7 +41,7 @@ class IndexesConfig {
    */
   getTickersLink(index) {
     if (!this.config[index]) {
-      error('Could not find index: %s, in config: %O', index, this.config);
+      error('Could not find tickers link for index: %s, in config: %O', index, this.config);
       throw new IndexUnsupported();
     }
 
@@ -48,6 +50,21 @@ class IndexesConfig {
     info('Returning this tickers link: %s', tickersLink);
 
     return tickersLink;
+  }
+
+  /**
+   * Method to fetch the link to fetch the fundamentals for all shares we support.
+   This hard codes the ALL_SHARE link as this encapsulates all of the other indexes
+   this tool will support for now
+   *
+   * @returns {string} The link to fetch fundamentals with
+   */
+  getFundamentalsLink() {
+    const fundamentalsLink = this.config.FTSE_ALL_SHARE.fundamentals_loc;
+
+    info('Returning this fundamentals link: %s', fundamentalsLink);
+
+    return fundamentalsLink;
   }
 }
 
