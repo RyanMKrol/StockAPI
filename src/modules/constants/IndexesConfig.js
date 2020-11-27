@@ -1,4 +1,4 @@
-import IndexUnsupported from '../errors';
+import { IndexUnsupported } from '../errors';
 import { info, error } from './logger';
 
 /**

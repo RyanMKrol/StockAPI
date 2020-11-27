@@ -5,6 +5,7 @@ import util from 'util';
 import * as noodleUtils from 'noodle-utils';
 
 import { INDEXES_CONFIG, SUPPORTED_ATTRIBUTES, info } from '../constants';
+import { FundamentalsFetchFailed } from '../errors';
 
 const WAIT_BETWEEN_FETCHES = 5000;
 const SIMULTANEOUS_FUNDAMENTALS_FETCHES = 2;
@@ -32,6 +33,8 @@ async function fetchFundamentals(links) {
 
     const ticker = new URL(link).searchParams.get(SHARE_NAME_URL_PARAM);
 
+    info('Parsing ticker from URL, URL: %s, ticker: ', link, ticker);
+
     return new Promise((resolve, reject) => {
       curl.get(link, (err, response, body) => {
         try {
@@ -46,7 +49,7 @@ async function fetchFundamentals(links) {
             [SUPPORTED_ATTRIBUTES.OPERATING_PROFIT]: attributeProcessor($, HTML_OPERATING_PROFIT),
           });
         } catch (error) {
-          reject(new Error('Failed to fetch the fundamentals'));
+          reject(new FundamentalsFetchFailed(error));
         }
       });
     });
@@ -61,25 +64,31 @@ async function fetchFundamentals(links) {
  * @returns {Array.<number>} The numbers corresponding to the attribute we want
  */
 function attributeProcessor($, rowTitle) {
-  const baseLinks = $('.sp-fundamentals__table tr').filter(
+  const fundamentalsTableRows = $('.sp-fundamentals__table tr').filter(
     (i, elem) => $(elem)
       .children('td')
       .first()
       .text() === rowTitle,
   );
 
-  const attributeData = $(baseLinks)
+  const attributeData = $(fundamentalsTableRows)
     .children('td')
     .map((i, elem) => (i === 0 ? undefined : $(elem).text()))
     .get()
     .map((x) => {
+      info('Value at the start of parsing: %s', x);
+
       // checks if the number is negative to modify the final result
       const negativeMultiplyer = x.includes('(') ? -1 : 1;
 
       // removes all string data to be able to parse number later
       const rawNumber = x.replace(/[,|(|)]/g, '');
 
-      return parseInt(rawNumber, 10) * negativeMultiplyer;
+      const parsedNumber = parseInt(rawNumber, 10) * negativeMultiplyer;
+
+      info('Value at the end of parsing: %s', parsedNumber);
+
+      return parsedNumber;
     });
 
   // reversed because the data on site starts from most recent
@@ -103,12 +112,11 @@ async function fetchFundamentalsLinks() {
           .map((i, elem) => $(elem).attr('href'))
           .get();
 
+        info('These are the base links: %O', util.inspect(baseLinks, { maxArrayLength: null }));
+
         const links = baseLinks.map((x) => x.replace('SharePrice.asp', 'share-fundamentals.asp'));
 
-        info(
-          "These are the links we'll use to fetch fundamentals: %O",
-          util.inspect(links, { maxArrayLength: null }),
-        );
+        info('These are the final links: %O', util.inspect(links, { maxArrayLength: null }));
 
         resolve(links);
       } catch (error) {
@@ -126,6 +134,8 @@ async function fetchFundamentalsLinks() {
 async function fetchFundamentalsData() {
   const fundamentalsLinks = await fetchFundamentalsLinks();
   const fundamentals = await fetchFundamentals(fundamentalsLinks);
+
+  info('These are the fundamentals: %O', util.inspect(fundamentals, { maxArrayLength: null }));
 
   return fundamentals;
 }
