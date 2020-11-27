@@ -29,6 +29,19 @@ class IndexesConfig {
   }
 
   /**
+   * Method to return the indexes we support for ticker fetches
+   *
+   * @returns {Array.<string>} An array of supported indexes to fetch the tickers of
+   */
+  getSupportedTickersIndexes() {
+    const supportedTickerIndexes = Object.keys(this.config);
+
+    info('Supported ticker indexes: %O', supportedTickerIndexes);
+
+    return supportedTickerIndexes;
+  }
+
+  /**
    * Method to fetch the link to fetch the tickers for the given index
    *
    * @param {string} index The index to grab the tickers link for
