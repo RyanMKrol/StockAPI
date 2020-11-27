@@ -29,7 +29,7 @@ async function updateTickersData() {
 
   info(
     'Finished the tickers data update, new state of the cache: %O',
-    util.inspect(SERVER_CACHE, { maxArrayLength: null, depth: 10 }),
+    util.inspect(SERVER_CACHE, { maxArrayLength: null, depth: 30 }),
   );
 }
 
