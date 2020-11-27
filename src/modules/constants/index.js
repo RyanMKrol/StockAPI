@@ -1,6 +1,4 @@
-import * as utils from 'noodle-utils';
+import { info, error } from './logger';
 import INDEXES_CONFIG from './IndexesConfig';
 
-const logger = utils.logger('app:StockAPI');
-
-export { INDEXES_CONFIG, logger };
+export { INDEXES_CONFIG, info, error };

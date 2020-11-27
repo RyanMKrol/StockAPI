@@ -1,4 +1,5 @@
 import IndexUnsupported from '../errors';
+import { info, error } from './logger';
 
 /**
  * Object to wrap the config associated with our supported indexes
@@ -38,10 +39,15 @@ class IndexesConfig {
    */
   getTickersLink(index) {
     if (!this.config[index]) {
+      error('Could not find index: %s, in config: %O', index, this.config);
       throw new IndexUnsupported();
     }
 
-    return this.config[index].tickers_loc;
+    const tickersLink = this.config[index].tickers_loc;
+
+    info('Returning this tickers link: %s', tickersLink);
+
+    return tickersLink;
   }
 }
 
