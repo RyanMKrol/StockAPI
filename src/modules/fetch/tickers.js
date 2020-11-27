@@ -95,12 +95,7 @@ async function getRawTickersForAllPages(stockIndex) {
 async function fetchTickers(stockIndex) {
   const baseTickers = await getRawTickersForAllPages(stockIndex);
 
-  // modify tickers to expected format
-  const tickers = baseTickers
-    .flat()
-    .map((ticker) => (ticker.endsWith('.') ? `${ticker}L` : `${ticker}.L`));
-
-  return tickers;
+  return baseTickers.flat();
 }
 
 export default fetchTickers;
