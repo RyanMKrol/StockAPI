@@ -2,7 +2,7 @@ import cheerio from 'cheerio';
 import curl from 'curl';
 import arrayRange from 'array-range';
 
-import INDEXES_CONFIG from '../constants';
+import { INDEXES_CONFIG } from '../constants';
 
 const PAGINATION_IDENTIFIER = '.page-last';
 
