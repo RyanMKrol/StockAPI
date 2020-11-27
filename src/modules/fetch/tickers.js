@@ -2,7 +2,7 @@ import cheerio from 'cheerio';
 import curl from 'curl';
 import arrayRange from 'array-range';
 
-import SUPPORTED_INDEXES from '../constants';
+import INDEXES_CONFIG from '../constants';
 
 const PAGINATION_IDENTIFIER = '.page-last';
 
@@ -13,7 +13,7 @@ const PAGINATION_IDENTIFIER = '.page-last';
  * @returns {Promise.<number>} The number of pages for the index
  */
 function getNumberOfPages(stockIndex) {
-  const url = SUPPORTED_INDEXES[stockIndex].ticker_url;
+  const url = INDEXES_CONFIG.getTickersLink(stockIndex);
 
   if (!url) {
     throw new Error(`Could not find where to grab stock data for ${stockIndex}`);
@@ -49,7 +49,8 @@ function getNumberOfPages(stockIndex) {
  * @returns {Promise.<Array.<string>>} A promise that will resolve to the tickers in the given index
  */
 async function getRawTickersForAllPages(stockIndex) {
-  const url = SUPPORTED_INDEXES[stockIndex].ticker_url;
+  const url = INDEXES_CONFIG.getTickersLink(stockIndex);
+
   const numPages = await getNumberOfPages(stockIndex);
 
   if (!url) {
