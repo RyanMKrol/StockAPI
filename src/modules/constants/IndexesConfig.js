@@ -75,6 +75,19 @@ class IndexesConfig {
 
     return fundamentalsLink;
   }
+
+  /**
+   * Method to get the supported indexes for building heatmaps
+   *
+   * @returns {Array.<string>} The indexes that we can build heatmap data for
+   */
+  getHeatmapsIndexes() {
+    const supportedIndexes = Object.keys(this.config);
+
+    info('Returning the supported indexes: %O', supportedIndexes);
+
+    return supportedIndexes;
+  }
 }
 
 // exporting only a single instance of this class

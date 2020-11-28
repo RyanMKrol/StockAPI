@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 // has it's own file due to circular dependency between indexesConfig.js and
 // index.js if I define it in index.js. index.js imports from IndexesConfig.js for
 // the class, then IndexesConfig.js imports from index.js for the logger

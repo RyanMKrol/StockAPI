@@ -3,8 +3,9 @@
 import moment from 'moment';
 
 import { DynamoReadBatch } from 'noodle-utils';
-import { DYNAMO_CREDENTIALS, DYNAMO_REGION } from '../constants';
+import { DYNAMO_CREDENTIALS, DYNAMO_REGION, SUPPORTED_TIME_PERIODS } from '../constants';
 import { MissingDynamoData } from '../errors';
+import fetchTickers from './tickers';
 
 // Table where ticker data is kept
 const DYNAMO_TABLE = 'TickerData';
@@ -18,7 +19,90 @@ const MAX_RETRY_DATES = 7;
  * @typedef Moment
  */
 
-/* eslint-disable no-unused-vars */
+/**
+ * Main
+ *
+ * @param {string} index The index to fetch heatmap data for
+ * @returns {object} An object holding the heatmap data, for multiple
+ time periods, for each stock in the given index
+ */
+async function main(index) {
+  const timePeriods = Object.keys(SUPPORTED_TIME_PERIODS);
+
+  const tickers = (await fetchTickers(index)).sort();
+
+  const todayDate = fetchTodayHeatmapDate();
+  const todayHeatmapData = await fetchHeatmapDataForDate(todayDate, tickers);
+
+  const heatmapData = {};
+
+  for (let i = 0; i < timePeriods.length; i += 1) {
+    const currentTimePeriod = timePeriods[i];
+
+    const dateForTimePeriod = fetchTargetHeatmapDate(currentTimePeriod);
+
+    const targetHeatmapData = await fetchHeatmapDataForDate(dateForTimePeriod, tickers);
+
+    const data = generateHeatmapPrices(todayHeatmapData, targetHeatmapData);
+
+    heatmapData[currentTimePeriod] = {
+      ...heatmapData[currentTimePeriod],
+      data,
+    };
+  }
+
+  return heatmapData;
+}
+
+/**
+ * Will generate the price differences between today and the target date
+ *
+ * @param {object} todayData Data for today
+ * @param {object} targetData Data for the target date
+ * @returns {object} Heatmap API response including ticker and change properties
+ */
+function generateHeatmapPrices(todayData, targetData) {
+  const tickers = Object.keys(todayData);
+
+  const heatmapData = tickers
+    .map((ticker) => {
+      const today = todayData[ticker];
+      const target = targetData[ticker];
+
+      const isTodayError = today.length !== 1 || today instanceof Error;
+      const isTargetError = target.length !== 1 || target instanceof Error;
+
+      return isTodayError || isTargetError
+        ? undefined
+        : {
+          ticker,
+          change: (today[0].price / target[0].price) * 100 - 100,
+        };
+    })
+    .filter((x) => x);
+
+  if (heatmapData.length < 50) {
+    throw new Error('Failed to fetch more than X needed items for a heatmap');
+  }
+
+  return heatmapData;
+}
+
+/**
+ * Gets the date indicated by the request to the API
+ *
+ * @param {string} timePeriod The time period passed in from the request
+ * @returns {Moment} The date of the price we want to fetch for our tickers
+ */
+function fetchTargetHeatmapDate(timePeriod) {
+  const daysToRemove = SUPPORTED_TIME_PERIODS[timePeriod];
+  const date = moment();
+
+  const targetDate = date.subtract(daysToRemove, 'days');
+
+  return targetDate;
+}
+
 /**
  * Gets the "todays" date to fetch heatmap data for. This will always be
  * one day behind as there's no guarantee that the price data API will have
@@ -38,6 +122,17 @@ function fetchTodayHeatmapDate() {
  */
 function formatHeatmapDate(date) {
   return date.format('YYYY-MM-DD');
+}
+
+/**
+ * A method for formatting the ticker into the format we've
+ stored the price data in the database
+ *
+ * @param {string} ticker Ticker to format
+ * @returns {string} The ticker formatted for a database read
+ */
+function formatTickerForRead(ticker) {
+  return ticker.endsWith('.') ? `${ticker}L` : `${ticker}.L`;
 }
 
 /**
@@ -72,7 +167,7 @@ function createDynamoReadItems(date, tickers) {
   return tickers.map((ticker) => ({
     expression: 'id = :id',
     expressionData: {
-      ':id': `${ticker}-${formattedDate}`,
+      ':id': `${formatTickerForRead(ticker)}-${formattedDate}`,
     },
     key: ticker,
   }));
@@ -107,4 +202,4 @@ async function findNearestDateWithData(batchReader, date, ticker) {
   throw new MissingDynamoData(`Could not find any data after retries for ticker: ${ticker}`);
 }
 
-export default fetchHeatmapDataForDate;
+export default main;
