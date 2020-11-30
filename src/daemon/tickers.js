@@ -14,13 +14,12 @@ async function updateTickersData() {
 
   info('Fetching tickers for these indexes: %O', indexes);
 
-  const tickersData = await Promise.all(
-    indexes.map(async (index) => {
-      const tickers = await fetchTickers(index);
-      return {
-        [index]: tickers,
-      };
-    }),
+  const tickersData = await indexes.reduce(
+    async (acc, index) => acc.then((data) => fetchTickers(index).then((tickers) => ({
+      ...data,
+      [index]: tickers,
+    }))),
+    Promise.resolve({}),
   );
 
   info('Storing the following tickers data: %O', tickersData);
