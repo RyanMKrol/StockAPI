@@ -77,12 +77,15 @@ class IndexesConfig {
   }
 
   /**
-   * Method to get the supported indexes for building heatmaps
+   * Method to get the supported indexes for building heatmaps. Currently we just
+   fetch data from the FTSE_ALL_SHARE, and then filter out values depending
+   on what index you want the data for, as the ALL_SHARE encapsulates every other
+   index we support
    *
    * @returns {Array.<string>} The indexes that we can build heatmap data for
    */
   getHeatmapsIndexes() {
-    const supportedIndexes = Object.keys(this.config);
+    const supportedIndexes = Object.keys(this.config).filter((index) => index === 'FTSE_ALL_SHARE');
 
     info('Returning the supported indexes: %O', supportedIndexes);
 

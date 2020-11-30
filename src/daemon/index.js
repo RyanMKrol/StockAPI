@@ -3,9 +3,10 @@
 import schedule from 'node-schedule';
 import MailSender from 'noodle-email';
 
-import { GMAIL_CREDENTIALS } from '../modules/constants';
+import { GMAIL_CREDENTIALS, info } from '../modules/constants';
 import updateTickersData from './tickers';
 import updateFundamentalsData from './fundamentals';
+import updateHeatmapsData from './heatmaps';
 
 const mailClient = new MailSender(GMAIL_CREDENTIALS);
 mailClient.setFrom('"StockAPI" <ryankrol.m@gmail.com>');
@@ -35,7 +36,11 @@ async function updateServiceData() {
  * The method to run all of the data updaters
  */
 async function main() {
+  info('Starting heatmap data update');
+  await updateHeatmapsData();
+  info('Starting tickers data update');
   await updateTickersData();
+  info('Starting fundamentals data update');
   await updateFundamentalsData();
 }
 

@@ -1,17 +1,20 @@
 /* eslint-disable no-await-in-loop */
 
 import moment from 'moment';
+import util from 'util';
 
 import { DynamoReadBatch } from 'noodle-utils';
-import { DYNAMO_CREDENTIALS, DYNAMO_REGION, SUPPORTED_TIME_PERIODS } from '../constants';
+import {
+  DYNAMO_CREDENTIALS, DYNAMO_REGION, SUPPORTED_TIME_PERIODS, info,
+} from '../constants';
 import { MissingDynamoData } from '../errors';
 import fetchTickers from './tickers';
 
 // Table where ticker data is kept
 const DYNAMO_TABLE = 'TickerData';
 
-// How many dates we'll try to find data for
-const MAX_RETRY_DATES = 7;
+// How far back we'll go from a given date to find a date we have data for
+const MAX_RETRY_DATES = 10;
 
 /**
  * The default value from the moment import
@@ -27,6 +30,8 @@ const MAX_RETRY_DATES = 7;
  time periods, for each stock in the given index
  */
 async function main(index) {
+  info('Starting the fetch for a heatmap');
+
   const timePeriods = Object.keys(SUPPORTED_TIME_PERIODS);
 
   const tickers = (await fetchTickers(index)).sort();
@@ -34,16 +39,26 @@ async function main(index) {
   const todayDate = fetchTodayHeatmapDate();
   const todayHeatmapData = await fetchHeatmapDataForDate(todayDate, tickers);
 
+  info('Heatmap prices for today: %O', util.inspect(todayHeatmapData, { maxArrayLength: null }));
+
   const heatmapData = {};
 
   for (let i = 0; i < timePeriods.length; i += 1) {
     const currentTimePeriod = timePeriods[i];
+
+    info('Starting a time period data update - %s', currentTimePeriod);
 
     const dateForTimePeriod = fetchTargetHeatmapDate(currentTimePeriod);
 
     const targetHeatmapData = await fetchHeatmapDataForDate(dateForTimePeriod, tickers);
 
     const data = generateHeatmapPrices(todayHeatmapData, targetHeatmapData);
+
+    info(
+      'Heatmap prices for target time period: %O, we have heatmap data for %s items',
+      util.inspect(data, { maxArrayLength: null }),
+      data.length,
+    );
 
     heatmapData[currentTimePeriod] = {
       ...heatmapData[currentTimePeriod],
@@ -81,15 +96,11 @@ function generateHeatmapPrices(todayData, targetData) {
     })
     .filter((x) => x);
 
-  if (heatmapData.length < 50) {
-    throw new Error('Failed to fetch more than X needed items for a heatmap');
-  }
-
   return heatmapData;
 }
 
 /**
- * Gets the date indicated by the request to the API
+ * Gets the concrete date indicated by time period
  *
  * @param {string} timePeriod The time period passed in from the request
  * @returns {Moment} The date of the price we want to fetch for our tickers
@@ -105,8 +116,8 @@ function fetchTargetHeatmapDate(timePeriod) {
 
 /**
  * Gets the "todays" date to fetch heatmap data for. This will always be
- * one day behind as there's no guarantee that the price data API will have
- * run today yet
+ * one day behind as there's no guarantee that the price data API's data will
+ * have been updated yet
  *
  * @returns {Moment} "Todays" date we want to compare our heatmap data with
  */
