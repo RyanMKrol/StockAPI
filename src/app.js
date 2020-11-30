@@ -19,7 +19,7 @@ app.use(cookieParser());
 app.use('/tickers', tickersRouter);
 app.use('/fundamentals', fundamentalsRouter);
 
-// catch 404 and forward to error handler
+// Unknown calls receive a generic 404
 app.use((req, res, next) => {
   next(createError(404));
 });
