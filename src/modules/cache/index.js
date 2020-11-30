@@ -32,10 +32,11 @@ async function readCache(cacheType) {
 }
 
 /**
- * Method to persist cache data
+ * Method to write cache data
  *
  * @param {string} cacheType The type of cache data we're writing
  * @param {object} data The data to write to the database
+ * @returns {object} The response from S3 after storing a new item
  */
 async function writeCache(cacheType, data) {
   AWS.config.update(AWS_CREDENTIALS);
