@@ -36,12 +36,12 @@ async function updateServiceData() {
  * The method to run all of the data updaters
  */
 async function main() {
-  info('Starting heatmap data update');
-  await updateHeatmapsData();
   info('Starting tickers data update');
   await updateTickersData();
   info('Starting fundamentals data update');
   await updateFundamentalsData();
+  info('Starting heatmap data update');
+  await updateHeatmapsData();
 }
 
 export default updateServiceData;
