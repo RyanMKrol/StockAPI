@@ -13,6 +13,7 @@
     "sourceType": "module"
   },
   "rules": {
+    "no-unused-expressions": ["error", { "allowTernary": true }],
     "no-use-before-define": [
       "error",
       {
