@@ -31,6 +31,7 @@ router.get('/:index', async (req, res) => {
  * Method to validate the request to the tickers API
  *
  * @param {any} request A request of some kidn
+ * @returns {boolean} Whether the index given is valid for this API
  */
 function validateRequest(request) {
   const { index } = request.params;
