@@ -1,11 +1,11 @@
 import express from 'express';
-import { handleTickersRequest } from '../api';
+import { handleFundamentalsRequest } from '../api';
 
 const router = express.Router();
 
 router.get('/:index', async (req, res, next) => {
   try {
-    const data = await handleTickersRequest(req);
+    const data = await handleFundamentalsRequest(req);
     res.send(data);
   } catch (e) {
     next(e);
