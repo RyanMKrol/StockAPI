@@ -5,7 +5,7 @@ import util from 'util';
 
 import { DynamoReadBatch } from 'noodle-utils';
 import {
-  DYNAMO_CREDENTIALS, DYNAMO_REGION, SUPPORTED_TIME_PERIODS, info,
+  AWS_CREDENTIALS, DYNAMO_REGION, SUPPORTED_TIME_PERIODS, info,
 } from '../constants';
 import { MissingDynamoData } from '../errors';
 import fetchTickers from './tickers';
@@ -154,7 +154,7 @@ function formatTickerForRead(ticker) {
  * @returns {object} An object containing all price data for a given date
  */
 async function fetchHeatmapDataForDate(date, tickers) {
-  const batchReader = new DynamoReadBatch(DYNAMO_CREDENTIALS, DYNAMO_REGION, DYNAMO_TABLE);
+  const batchReader = new DynamoReadBatch(AWS_CREDENTIALS, DYNAMO_REGION, DYNAMO_TABLE);
 
   const targetDate = await findNearestDateWithData(batchReader, date, tickers[0]);
 
