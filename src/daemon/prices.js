@@ -1,4 +1,4 @@
-import { DynamoWriteQueue } from 'noodle-utils';
+import { sleep, DynamoWriteQueue } from 'noodle-utils';
 import {
   MAIL_CLIENT,
   INDEXES_CONFIG,
@@ -12,29 +12,35 @@ import { fetchPrices, fetchTickers } from '../modules/fetch';
 const RECENT_ITEM_COUNT = 10;
 const DYNAMO_TABLE = 'TickerData';
 
+// we wait for 10 mins when writing a complete history to the DB because we'll end
+// up using a huge amount of memory keeping everything locally while waiting to push
+// to the DB otherwise
+const WRITE_WAIT_MS = 1000 * 60 * 10;
+
 const writeQueue = new DynamoWriteQueue(AWS_CREDENTIALS, DYNAMO_REGION, DYNAMO_TABLE);
 
 /**
  * Method to fetch and store only recent price data
  */
 async function updateRecentPricesData() {
-  await updatePricesData(RECENT_ITEM_COUNT);
+  await updatePricesData(0, RECENT_ITEM_COUNT);
 }
 
 /**
  * Method to fetch and store all historic price data
  */
 async function updateHistoricPricesData() {
-  await updatePricesData();
+  await updatePricesData(WRITE_WAIT_MS);
 }
 
 /**
  * Method to fetch and store price data
  *
+ * @param {number} [optionalWait] Time to wait between writing to DB
  * @param {number} [daysToRestrict] The number of items to store per stock. If
  * none is passed, we store everything
  */
-async function updatePricesData(daysToRestrict) {
+async function updatePricesData(optionalWait, daysToRestrict) {
   const indexes = INDEXES_CONFIG.getPricesIndexes();
 
   info('Starting the price data update');
@@ -63,6 +69,8 @@ async function updatePricesData(daysToRestrict) {
             info('Storing data for ticker: %s', ticker);
             writeQueue.pushBatch(data);
           }
+
+          await sleep(optionalWait);
         }),
         Promise.resolve(),
       );
