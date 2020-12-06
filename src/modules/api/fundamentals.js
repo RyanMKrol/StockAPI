@@ -2,7 +2,7 @@ import createError from 'http-errors';
 
 import handleTickersRequest from './tickers';
 import { API_STORAGE_KEYS } from '../constants';
-import SERVER_DATA from '../data_structures';
+import { SERVER_CACHE } from '../data_structures';
 
 /**
  * Method to handle request for tickers, given an index
@@ -16,7 +16,7 @@ async function handleRequest(request) {
 
   const { tickers } = tickersHandled;
 
-  const fundamentalsData = SERVER_DATA.getData(API_STORAGE_KEYS.FUNDAMENTALS) || {};
+  const fundamentalsData = SERVER_CACHE.getData(API_STORAGE_KEYS.FUNDAMENTALS) || {};
   const arrayFundamentalsData = Object.values(fundamentalsData);
 
   const fundamentals = arrayFundamentalsData.filter((data) => tickers.includes(data.ticker));

@@ -1,7 +1,7 @@
 import createError from 'http-errors';
 
 import { INDEXES_CONFIG, API_STORAGE_KEYS } from '../constants';
-import SERVER_DATA from '../data_structures';
+import { SERVER_CACHE } from '../data_structures';
 
 /**
  * Method to handle request for tickers, given an index
@@ -17,7 +17,7 @@ async function handleRequest(request) {
     throw createError(400);
   }
 
-  const tickerData = SERVER_DATA.getData(API_STORAGE_KEYS.TICKERS) || {};
+  const tickerData = SERVER_CACHE.getData(API_STORAGE_KEYS.TICKERS) || {};
   const tickers = tickerData[index];
 
   if (!tickers) {

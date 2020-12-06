@@ -1,6 +1,6 @@
 import util from 'util';
 
-import SERVER_CACHE from '../modules/data_structures';
+import { SERVER_CACHE } from '../modules/data_structures';
 import { API_STORAGE_KEYS, INDEXES_CONFIG, info } from '../modules/constants';
 import { fetchHeatmap } from '../modules/fetch';
 import { readCache, writeCache } from '../modules/cache';
