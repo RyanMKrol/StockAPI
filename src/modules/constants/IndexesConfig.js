@@ -91,6 +91,22 @@ class IndexesConfig {
 
     return supportedIndexes;
   }
+
+  /**
+   * Method to get the supported indexes for fetching price data. Currently we just
+   fetch data from the FTSE_ALL_SHARE, and then filter out values depending
+   on what index you want the data for, as the ALL_SHARE encapsulates every other
+   index we support
+   *
+   * @returns {Array.<string>} The indexes that we can build heatmap data for
+   */
+  getPricesIndexes() {
+    const supportedIndexes = Object.keys(this.config).filter((index) => index === 'FTSE_ALL_SHARE');
+
+    info('Returning the supported indexes: %O', supportedIndexes);
+
+    return supportedIndexes;
+  }
 }
 
 // exporting only a single instance of this class
