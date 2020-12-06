@@ -2,6 +2,7 @@ import { info, error } from './logger';
 import INDEXES_CONFIG from './IndexesConfig';
 import AWS_CREDENTIALS from '../../../credentials/dynamo.json';
 import GMAIL_CREDENTIALS from '../../../credentials/gmail.json';
+import ALPHA_VANTAGE_CREDENTIALS from '../../../credentials/alphavantage.json';
 
 const DYNAMO_REGION = 'us-east-2';
 
@@ -34,5 +35,6 @@ export {
   API_STORAGE_KEYS,
   GMAIL_CREDENTIALS,
   AWS_CREDENTIALS,
+  ALPHA_VANTAGE_CREDENTIALS,
   DYNAMO_REGION,
 };
