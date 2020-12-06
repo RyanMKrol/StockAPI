@@ -1,3 +1,5 @@
+import MailSender from 'noodle-email';
+
 import { info, error } from './logger';
 import INDEXES_CONFIG from './IndexesConfig';
 import AWS_CREDENTIALS from '../../../credentials/dynamo.json';
@@ -26,6 +28,10 @@ const SUPPORTED_TIME_PERIODS = Object.freeze({
   TWO_YEAR: 720,
 });
 
+const MAIL_CLIENT = new MailSender(GMAIL_CREDENTIALS);
+MAIL_CLIENT.setFrom('"StockAPI" <ryankrol.m@gmail.com>');
+MAIL_CLIENT.setTo('ryankrol.m@gmail.com');
+
 export {
   INDEXES_CONFIG,
   info,
@@ -33,7 +39,7 @@ export {
   SUPPORTED_ATTRIBUTES,
   SUPPORTED_TIME_PERIODS,
   API_STORAGE_KEYS,
-  GMAIL_CREDENTIALS,
+  MAIL_CLIENT,
   AWS_CREDENTIALS,
   ALPHA_VANTAGE_CREDENTIALS,
   DYNAMO_REGION,

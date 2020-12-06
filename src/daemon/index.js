@@ -1,16 +1,10 @@
-/* eslint-disable no-await-in-loop */
-
 import schedule from 'node-schedule';
-import MailSender from 'noodle-email';
 
-import { GMAIL_CREDENTIALS, info } from '../modules/constants';
+import { MAIL_CLIENT, info } from '../modules/constants';
 import updateTickersData from './tickers';
 import updateFundamentalsData from './fundamentals';
 import updateHeatmapsData from './heatmaps';
-
-const mailClient = new MailSender(GMAIL_CREDENTIALS);
-mailClient.setFrom('"StockAPI" <ryankrol.m@gmail.com>');
-mailClient.setTo('ryankrol.m@gmail.com');
+import { updateRecentPricesData } from './prices';
 
 /**
  * A method to setup a schedule for the API data
@@ -18,16 +12,14 @@ mailClient.setTo('ryankrol.m@gmail.com');
 async function updateServiceData() {
   // always run this on the first call to ensure that the store is populated
   // on service start
-  main();
+  await main();
 
-  // update is scheduled to run every day at midnight
-  schedule.scheduleJob('0 0 0 * * *', async () => {
+  // update is scheduled to run every three days at midnight
+  schedule.scheduleJob('0 0 0 */3 * *', async () => {
     try {
-      await mailClient.sendMail('Starting to update the StockAPI Data!', '');
       await main();
-      await mailClient.sendMail('Finished updating the StockAPI data!', '');
     } catch (e) {
-      await mailClient.sendMail('Failed to update the StockAPI data!', '');
+      await MAIL_CLIENT.sendMail('Failed to update the StockAPI data!', '');
     }
   });
 }
@@ -36,12 +28,21 @@ async function updateServiceData() {
  * The method to run all of the data updaters
  */
 async function main() {
+  await MAIL_CLIENT.sendMail('Starting to update the StockAPI Data!', '');
+
+  // daemon's that update the local API data take priority
   info('Starting tickers data update');
   await updateTickersData();
   info('Starting fundamentals data update');
   await updateFundamentalsData();
   info('Starting heatmap data update');
   await updateHeatmapsData();
+
+  // daemon's that don't directly influence the API response can start later
+  info('Starting price data update');
+  await updateRecentPricesData(MAIL_CLIENT);
+
+  await MAIL_CLIENT.sendMail('Finished updating the StockAPI data!', '');
 }
 
 export default updateServiceData;
