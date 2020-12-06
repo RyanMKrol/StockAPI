@@ -56,9 +56,11 @@ class SimpleRetryWrapper {
       info('Data fits retry policy, attempting to retry');
 
       if (this.attempts <= numRetries) {
-        info('We still have retries remaining, retrying');
+        info('We still have retries remaining, starting wait...');
 
         await sleep(waitTime);
+
+        info('Retrying...');
 
         return this.start();
       }

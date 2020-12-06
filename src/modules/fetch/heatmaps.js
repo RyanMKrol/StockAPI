@@ -36,6 +36,8 @@ async function main(index) {
 
   const tickers = (await fetchTickers(index)).sort();
 
+  info('Fetching heatmap data for today');
+
   const todayDate = fetchTodayHeatmapDate();
   const todayHeatmapData = await fetchHeatmapDataForDate(todayDate, tickers);
 
