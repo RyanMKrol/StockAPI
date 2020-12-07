@@ -34,11 +34,19 @@ async function fetchTickerPrices(ticker, daysOfData) {
    * time periods, for each stock in the given index
    */
   const retryMethod = async () => fetchTickerPriceData(formattedTicker).then(async (priceData) => {
-    info('For ticker: %s, fetched this many items: %s', formattedTicker, priceData.length);
+    info(
+      'For ticker: %s, fetched this many items: %s',
+      formattedTicker,
+      Object.keys(priceData.response).length,
+    );
 
     const trimmedPriceData = daysOfData ? trimResponse(priceData, daysOfData) : priceData;
 
-    info('Trimmed API response down to this many items: %s', trimmedPriceData.length);
+    info(
+      'For ticker: %s, fetched this many trimmed items: %s',
+      formattedTicker,
+      Object.keys(trimmedPriceData.response).length,
+    );
 
     const processedResponse = processAlphavantageApiResponse(trimmedPriceData);
 
