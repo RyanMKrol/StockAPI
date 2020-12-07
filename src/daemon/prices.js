@@ -49,7 +49,7 @@ async function updatePricesData(optionalWait, daysToRestrict) {
     async (accumulatorOuter, stockIndex) => accumulatorOuter.then(async () => {
       info('Going through this index: %s', stockIndex);
 
-      const tickers = (await fetchTickers(stockIndex)).sort();
+      const tickers = await fetchTickers(stockIndex);
 
       info('Tickers fetched');
 

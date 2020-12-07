@@ -34,7 +34,7 @@ async function main(index) {
 
   const timePeriods = Object.keys(SUPPORTED_TIME_PERIODS);
 
-  const tickers = (await fetchTickers(index)).sort();
+  const tickers = await fetchTickers(index);
 
   info('Fetching heatmap data for today');
 

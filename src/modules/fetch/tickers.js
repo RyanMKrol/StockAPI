@@ -95,7 +95,7 @@ async function getRawTickersForAllPages(stockIndex) {
 async function fetchTickers(stockIndex) {
   info('Fetching tickers for this index: %s', stockIndex);
 
-  const tickers = (await getRawTickersForAllPages(stockIndex)).flat();
+  const tickers = (await getRawTickersForAllPages(stockIndex)).flat().sort();
 
   info('Found these tickers: %O', util.inspect(tickers, { maxArrayLength: null }));
 
