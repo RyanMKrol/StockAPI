@@ -6,7 +6,7 @@ import logger from 'morgan';
 import createError from 'http-errors';
 import cors from 'cors';
 import updateServiceData from './daemon';
-import { tickersRouter, fundamentalsRouter } from './modules/routes';
+import { tickersRouter, fundamentalsRouter, heatmapsRouter } from './modules/routes';
 
 const app = express();
 
@@ -18,6 +18,7 @@ app.use(cookieParser());
 
 app.use('/tickers', tickersRouter);
 app.use('/fundamentals', fundamentalsRouter);
+app.use('/heatmaps', heatmapsRouter);
 
 // Unknown calls receive a generic 404
 app.use((req, res, next) => {
