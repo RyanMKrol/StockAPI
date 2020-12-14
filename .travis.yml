@@ -6,8 +6,8 @@ deploy:
   provider: script
   script: bash scripts/deploy $AES_PASS
   on:
-    branch: master
+    branch: main
 branches:
   only:
-  - master
+  - main
   - development
