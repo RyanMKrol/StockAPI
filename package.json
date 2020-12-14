@@ -33,6 +33,7 @@
     "node-schedule": "^1.3.2",
     "noodle-email": "^1.0.1",
     "noodle-utils": "^3.3.2",
+    "semaphore": "^1.1.0",
     "supports-color": "^8.0.0"
   },
   "devDependencies": {
