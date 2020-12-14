@@ -7,8 +7,8 @@ import * as noodleUtils from 'noodle-utils';
 import { INDEXES_CONFIG, SUPPORTED_ATTRIBUTES, info } from '../constants';
 import { FundamentalsFetchFailed } from '../errors';
 
-const WAIT_BETWEEN_FETCHES = 5000;
-const SIMULTANEOUS_FUNDAMENTALS_FETCHES = 2;
+const WAIT_BETWEEN_FETCHES = 3000;
+const SIMULTANEOUS_FUNDAMENTALS_FETCHES = 5;
 
 const SHARE_NAME_URL_PARAM = 'shareprice';
 
