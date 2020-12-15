@@ -5,13 +5,33 @@ import { API_STORAGE_KEYS } from '../constants';
 import { SERVER_CACHE } from '../data_structures';
 
 /**
- * Method to handle request for tickers, given an index
+ * Method to handle fetching one piece of a heatmap for a given index. This could
+ * be the changes over a year, two years, etc.
  *
  * @param {module:types.Request} request The API request
- * @returns {object} Either the data to return, or an error object
+ * @returns {object} Data from the relevant heatmap for the given time period
  * @throws {module:types.HttpError} An error representing what went wrong
  */
-async function handleRequest(request) {
+async function handleHeatmapTimePeriodRequest(request) {
+  const { timePeriod } = request.params;
+
+  const { tickers } = await handleTickersRequest(request);
+
+  const heatmap = await handleHeatmapRequest(request);
+
+  const timePeriodData = heatmap[timePeriod].filter((x) => tickers.includes(x.ticker));
+
+  return [...timePeriodData];
+}
+
+/**
+ * Method to create a heatmap based on the index
+ *
+ * @param {module:types.Request} request The API request
+ * @returns {object} A heatmap
+ * @throws {module:types.HttpError} An error representing what went wrong
+ */
+async function handleHeatmapRequest(request) {
   const tickersHandled = await handleTickersRequest(request);
 
   const { tickers } = tickersHandled;
@@ -28,9 +48,6 @@ async function handleRequest(request) {
     return acc;
   }, {});
 
-  return {
-    heatmap,
-  };
+  return { ...heatmap };
 }
-
-export default handleRequest;
+export { handleHeatmapTimePeriodRequest, handleHeatmapRequest };
