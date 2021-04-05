@@ -43,7 +43,7 @@ async function fetchFundamentals(links) {
           resolve({
             ticker,
             dataSourceLink: link,
-            followUpLink: `https://www.google.com/search?tbm=fin&q=LON:${ticker}`,
+            followUpLink: `https://www.google.com/finance/quote/${ticker}:LON?window=1Y`,
             [SUPPORTED_ATTRIBUTES.REVENUE]: attributeProcessor($, HTML_REVENUE),
             [SUPPORTED_ATTRIBUTES.PRE_TAX_PROFIT]: attributeProcessor($, HTML_PRE_TAX_PROFIT),
             [SUPPORTED_ATTRIBUTES.OPERATING_PROFIT]: attributeProcessor($, HTML_OPERATING_PROFIT),
