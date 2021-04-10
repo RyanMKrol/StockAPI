@@ -14,7 +14,7 @@ import fetchTickers from './tickers';
 const DYNAMO_TABLE = 'TickerData';
 
 // How far back we'll go from a given date to find a date we have data for
-const MAX_RETRY_DATES = 10;
+const MAX_RETRY_DATES = 20;
 
 /**
  * The default value from the moment import
@@ -158,7 +158,12 @@ function formatTickerForRead(ticker) {
 async function fetchHeatmapDataForDate(date, tickers) {
   const batchReader = new DynamoReadBatch(AWS_CREDENTIALS, DYNAMO_REGION, DYNAMO_TABLE);
 
-  const targetDate = await findNearestDateWithData(batchReader, date, tickers[0]);
+  // WMH is used as it's a solid stock that I can count on existing for the foreseeable. It
+  // also helps to use a stock near the end of the alphabet, as it can be assumed that data
+  // in stocks before this one alphabetically will have been updated if this ticker has data
+  const targetDate = await findNearestDateWithData(batchReader, date, 'WMH');
+
+  info(`targeting this date - ${targetDate}`);
 
   const heatmapDateReadItems = createDynamoReadItems(targetDate, tickers);
 
