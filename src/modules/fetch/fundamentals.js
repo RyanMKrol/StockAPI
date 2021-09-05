@@ -13,7 +13,8 @@ const SIMULTANEOUS_FUNDAMENTALS_FETCHES = 5;
 const SHARE_NAME_URL_PARAM = 'shareprice';
 
 const HTML_REVENUE = 'Revenue';
-const HTML_PRE_TAX_PROFIT = 'Pre tax Profit';
+const HTML_TURNOVER = 'Turnover';
+const HTML_PRE_TAX_PROFIT = 'Pre Tax Profit';
 const HTML_OPERATING_PROFIT = 'Operating Profit / Loss';
 
 /**
@@ -44,9 +45,9 @@ async function fetchFundamentals(links) {
             ticker,
             dataSourceLink: link,
             followUpLink: `https://www.google.com/finance/quote/${ticker}:LON?window=1Y`,
-            [SUPPORTED_ATTRIBUTES.REVENUE]: attributeProcessor($, HTML_REVENUE),
-            [SUPPORTED_ATTRIBUTES.PRE_TAX_PROFIT]: attributeProcessor($, HTML_PRE_TAX_PROFIT),
-            [SUPPORTED_ATTRIBUTES.OPERATING_PROFIT]: attributeProcessor($, HTML_OPERATING_PROFIT),
+            [SUPPORTED_ATTRIBUTES.REVENUE]: attributeProcessor($, [HTML_REVENUE, HTML_TURNOVER]),
+            [SUPPORTED_ATTRIBUTES.PRE_TAX_PROFIT]: attributeProcessor($, [HTML_PRE_TAX_PROFIT]),
+            [SUPPORTED_ATTRIBUTES.OPERATING_PROFIT]: attributeProcessor($, [HTML_OPERATING_PROFIT]),
           });
         } catch (error) {
           reject(new FundamentalsFetchFailed(error));
@@ -60,16 +61,16 @@ async function fetchFundamentals(links) {
  * Processor for extracting attributes from fundamentals
  *
  * @param {CheerioParseResult} $ The result of parsing the initial page body with Cheerio
- * @param {string} rowTitle The title corresponding to the attribute we want to fetch
+ * @param {Array<string>} rowTitles The title corresponding to the attribute we want to fetch
  * @returns {Array.<number>} The numbers corresponding to the attribute we want
  */
-function attributeProcessor($, rowTitle) {
-  const fundamentalsTableRows = $('.sp-fundamentals__table tr').filter(
-    (i, elem) => $(elem)
+function attributeProcessor($, rowTitles) {
+  const fundamentalsTableRows = $('.sp-fundamentals__table tr').filter((i, elem) => rowTitles.includes(
+    $(elem)
       .children('td')
       .first()
-      .text() === rowTitle,
-  );
+      .text(),
+  ));
 
   const attributeData = $(fundamentalsTableRows)
     .children('td')
