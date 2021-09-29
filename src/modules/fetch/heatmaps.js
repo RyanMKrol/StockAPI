@@ -117,14 +117,14 @@ function fetchTargetHeatmapDate(timePeriod) {
 }
 
 /**
- * Gets the "todays" date to fetch heatmap data for. This will always be
- * one day behind as there's no guarantee that the price data API's data will
- * have been updated yet
+ * Gets the "todays" date to fetch heatmap data for. I've put this a week in
+ * the past for now as there's no guarantee that data will have been fetched
+ * recently.
  *
  * @returns {Moment} "Todays" date we want to compare our heatmap data with
  */
 function fetchTodayHeatmapDate() {
-  return moment().subtract(1, 'days');
+  return moment().subtract(7, 'days');
 }
 
 /**
@@ -158,10 +158,7 @@ function formatTickerForRead(ticker) {
 async function fetchHeatmapDataForDate(date, tickers) {
   const batchReader = new DynamoReadBatch(AWS_CREDENTIALS, DYNAMO_REGION, DYNAMO_TABLE);
 
-  // WMH is used as it's a solid stock that I can count on existing for the foreseeable. It
-  // also helps to use a stock near the end of the alphabet, as it can be assumed that data
-  // in stocks before this one alphabetically will have been updated if this ticker has data
-  const targetDate = await findNearestDateWithData(batchReader, date, 'WMH');
+  const targetDate = await findNearestDateWithData(batchReader, date, 'WIZZ');
 
   info(`targeting this date - ${targetDate}`);
 
