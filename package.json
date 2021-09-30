@@ -26,6 +26,7 @@
     "http-errors": "^1.8.0",
     "jest": "^27.0.6",
     "morgan": "^1.9.1",
+    "noodle-utils": "^3.4.1",
     "util": "^0.12.4"
   },
   "devDependencies": {
