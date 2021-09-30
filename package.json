@@ -15,14 +15,18 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.10.4",
+    "array-range": "^1.0.1",
+    "cheerio": "^1.0.0-rc.10",
     "cookie-parser": "^1.4.4",
     "core-js": "^3.6.5",
     "cors": "^2.8.5",
+    "curl": "^0.1.4",
     "debug": "^4.1.1",
     "express": "^4.17.1",
     "http-errors": "^1.8.0",
     "jest": "^27.0.6",
-    "morgan": "^1.9.1"
+    "morgan": "^1.9.1",
+    "util": "^0.12.4"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.4",
