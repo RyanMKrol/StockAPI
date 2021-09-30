@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import fetchTickers from './tickers';
 import { fetchSupportedIndexes } from './indexes';
+import fetchTickerPrices from './prices';
 
 /**
  * InternalData
@@ -31,6 +32,16 @@ class InternalData {
    */
   getIndexes() {
     return fetchSupportedIndexes();
+  }
+
+  /**
+   * Get prices for a ticker
+   *
+   * @param {string} ticker ticker
+   * @returns {Array<string>} The supported indexes
+   */
+  getPrices(ticker) {
+    return fetchTickerPrices(ticker);
   }
 
   /**

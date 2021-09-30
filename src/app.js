@@ -7,6 +7,7 @@ import cors from 'cors';
 
 import tickersRouter from './modules/routes/tickers';
 import indexesRouter from './modules/routes/indexes';
+import pricesRouter from './modules/routes/prices';
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(cookieParser());
 
 app.use('/tickers', tickersRouter);
 app.use('/indexes', indexesRouter);
+app.use('/prices', pricesRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
