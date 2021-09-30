@@ -10,7 +10,7 @@ const INDEXES = {
  *
  * @returns {Array<string>} An array of supported indexes
  */
-function supportedIndexes() {
+function fetchSupportedIndexes() {
   return Object.values(INDEXES);
 }
 
@@ -20,7 +20,7 @@ function supportedIndexes() {
  * @param {string} index The index to find ticker data for
  * @returns {string} The URL to fetch index tickers
  */
-function tickersUrlForIndex(index) {
+function fetchTickersUrlForIndex(index) {
   switch (index) {
     case INDEXES.FTSE_100:
       return 'https://www.londonstockexchange.com/indices/ftse-100/constituents/table';
@@ -37,4 +37,4 @@ function tickersUrlForIndex(index) {
   }
 }
 
-export { supportedIndexes, tickersUrlForIndex };
+export { fetchSupportedIndexes, fetchTickersUrlForIndex };

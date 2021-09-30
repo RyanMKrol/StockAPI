@@ -2,7 +2,7 @@ import cheerio from 'cheerio';
 import curl from 'curl';
 import arrayRange from 'array-range';
 
-import { tickersUrlForIndex } from './indexes';
+import { fetchTickersUrlForIndex } from './indexes';
 
 /**
  * Fetches the number of pages to get data for
@@ -79,7 +79,7 @@ async function getRawTickersForAllPages(url, numPages) {
  * @returns {Array.<string>} List of tickers for the current index
  */
 async function fetchTickers(index) {
-  const url = tickersUrlForIndex(index);
+  const url = fetchTickersUrlForIndex(index);
 
   const numPages = await getNumberOfPages(url);
 

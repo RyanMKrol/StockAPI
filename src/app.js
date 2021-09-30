@@ -6,6 +6,7 @@ import createError from 'http-errors';
 import cors from 'cors';
 
 import exampleRouter from './modules/routes/example';
+import indexesRouter from './modules/routes/indexes';
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/example/endpoint', exampleRouter);
+app.use('/indexes', indexesRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
