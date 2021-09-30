@@ -37,4 +37,27 @@ function fetchTickersUrlForIndex(index) {
   }
 }
 
-export { fetchSupportedIndexes, fetchTickersUrlForIndex };
+/**
+ * Fetches the URL to find fundamentals data for a given index
+ *
+ * @param {string} index The index to find fundamentals data for
+ * @returns {string} The URL to fetch index fundamentals
+ */
+function fetchFundamentalsUrlForIndex(index) {
+  switch (index) {
+    case INDEXES.FTSE_100:
+      return 'https://www.lse.co.uk/share-prices/indices/ftse-100/constituents.html';
+    case INDEXES.FTSE_250:
+      return 'https://www.lse.co.uk/share-prices/indices/ftse-250/constituents.html';
+    case INDEXES.FTSE_350:
+      return 'https://www.lse.co.uk/share-prices/indices/ftse-350/constituents.html';
+    case INDEXES.FTSE_ALL_SHARE:
+      return 'https://www.lse.co.uk/share-prices/indices/ftse-all-share/constituents.html';
+    case INDEXES.FTSE_AIM_ALL_SHARE:
+      return 'https://www.lse.co.uk/share-prices/indices/ftse-aim-all-share/constituents.html';
+    default:
+      throw new Error(`Could not get URL for given index: ${index}`);
+  }
+}
+
+export { fetchSupportedIndexes, fetchTickersUrlForIndex, fetchFundamentalsUrlForIndex };

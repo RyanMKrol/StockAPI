@@ -17,7 +17,7 @@ let lastCallTimeMS = 0;
  * @returns {Array.<object>} An object holding the heatmap data, for multiple
  * time periods, for each stock in the given index
  */
-async function fetchTickerPrices(ticker) {
+async function getPriceHistory(ticker) {
   // if the API is called too soon after the last call we have to wait until the API
   // rate limit conditions are met (5 calls per minute)
   await conditionalWait();
@@ -179,4 +179,4 @@ function formatTickerForCall(ticker) {
   return ticker.endsWith('.') ? `${ticker}L` : `${ticker}.L`;
 }
 
-export default fetchTickerPrices;
+export default getPriceHistory;

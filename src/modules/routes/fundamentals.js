@@ -8,10 +8,9 @@ const router = express.Router();
 router.get('/:index', middlewareRouter, async (req, res, next) => {
   const { index } = req.params;
 
-  const tickers = await INTERNAL_DATA.getTickers(index);
-  const prices = await INTERNAL_DATA.getPriceHistory(tickers[0]);
+  const fundamentals = await INTERNAL_DATA.getFundamentals(index);
 
-  res.send(prices);
+  res.send(fundamentals);
 });
 
 export default router;

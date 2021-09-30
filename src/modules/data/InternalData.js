@@ -1,7 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import fetchTickers from './tickers';
 import { fetchSupportedIndexes } from './indexes';
-import fetchTickerPrices from './prices';
+import getPriceHistory from './prices';
+import fetchFundamentalsData from './fundamentals';
 
 /**
  * InternalData
@@ -22,6 +23,7 @@ class InternalData {
   resetCache() {
     this.store = {
       TICKERS: {},
+      FUNDAMENTALS: {},
     };
   }
 
@@ -35,13 +37,28 @@ class InternalData {
   }
 
   /**
-   * Get prices for a ticker
+   * Get price history for a ticker
    *
    * @param {string} ticker ticker
    * @returns {Array<string>} The supported indexes
    */
-  getPrices(ticker) {
-    return fetchTickerPrices(ticker);
+  getPriceHistory(ticker) {
+    return getPriceHistory(ticker);
+  }
+
+  /**
+   * Get fundamentals of stocks in a given index
+   *
+   * @param {string} index index
+   * @returns {Array<string>} The fundamentals data
+   */
+  async getFundamentals(index) {
+    if (typeof this.store.FUNDAMENTALS[index] === 'undefined') {
+      const tickers = await fetchFundamentalsData(index);
+      this.store.FUNDAMENTALS[index] = tickers;
+    }
+
+    return this.store.FUNDAMENTALS[index];
   }
 
   /**
