@@ -3,6 +3,9 @@ import fetchTickers from './tickers';
 import { fetchSupportedIndexes } from './indexes';
 import getPriceHistory from './prices';
 import fetchFundamentalsData from './fundamentals';
+import { readCache, writeCache } from './private/cache';
+
+const TICKERS_CACHE_NAME = 'tickers';
 
 /**
  * InternalData
@@ -12,19 +15,11 @@ import fetchFundamentalsData from './fundamentals';
 class InternalData {
   /**
    * constructor
+   *
+   * @param {object} cacheData A local representation of the cache
    */
-  constructor() {
-    this.resetCache();
-  }
-
-  /**
-   * Busts the cache, ensuring that the next fetch will populate with new data
-   */
-  resetCache() {
-    this.store = {
-      TICKERS: {},
-      FUNDAMENTALS: {},
-    };
+  constructor(cacheData) {
+    this.store = cacheData;
   }
 
   /**
@@ -66,16 +61,56 @@ class InternalData {
    *
    * @param {string} index The index to get tickers for
    * @returns {Array<string>} The tickers for the index
+   * @throws When tickers data is unavailable
    */
-  async getTickers(index) {
+  getTickers(index) {
     if (typeof this.store.TICKERS[index] === 'undefined') {
-      const tickers = await fetchTickers(index);
-      this.store.TICKERS[index] = tickers;
+      throw Error('Data not found');
     }
 
     return this.store.TICKERS[index];
   }
+
+  /**
+   * Update the local and long term cache for tickers
+   */
+  async updateTickersCache() {
+    const indexes = fetchSupportedIndexes();
+
+    const cacheData = await indexes.reduce(
+      async (acc, val) => acc.then(async (data) => {
+        /* eslint-disable-next-line no-param-reassign */
+        data[val] = await fetchTickers(val);
+        return data;
+      }),
+      Promise.resolve({}),
+    );
+
+    this.store.TICKERS = cacheData;
+    writeCache(TICKERS_CACHE_NAME, JSON.stringify(cacheData));
+  }
 }
 
-const INTERNAL_DATA = new InternalData();
-export default INTERNAL_DATA;
+let instance;
+
+/**
+ * Gets a singleton of InternalData
+ *
+ * @returns {InternalData} An instance of InternalData
+ */
+async function getInternalData() {
+  if (instance) {
+    return instance;
+  }
+
+  const tickersData = await readCache(TICKERS_CACHE_NAME, 10);
+  const cacheData = {
+    TICKERS: tickersData || {},
+  };
+
+  instance = new InternalData(cacheData);
+
+  return instance;
+}
+
+export default getInternalData;

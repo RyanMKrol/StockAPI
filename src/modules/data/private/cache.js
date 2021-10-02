@@ -21,8 +21,8 @@ async function readCache(objectName, ttlDays) {
       const cacheData = await readData(STOCK_CACHE_BUCKET_NAME, cacheObjectName);
       return cacheData;
     } catch (e) {
-      console.log(
-        `Failed to find cache data for this name: ${cacheObjectName}, with this error: ${e}`,
+      process.stdout.write(
+        `Failed to find cache data for this name: ${cacheObjectName}, with this error: ${e}\n`,
       );
     }
   }

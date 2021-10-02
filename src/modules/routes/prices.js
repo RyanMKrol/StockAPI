@@ -1,5 +1,5 @@
 import express from 'express';
-import INTERNAL_DATA from '../data';
+import getInternalData from '../data';
 import middlewareRouter from './middleware';
 
 const router = express.Router();
@@ -8,8 +8,10 @@ const router = express.Router();
 router.get('/:index', middlewareRouter, async (req, res, next) => {
   const { index } = req.params;
 
-  const tickers = await INTERNAL_DATA.getTickers(index);
-  const prices = await INTERNAL_DATA.getPriceHistory(tickers[0]);
+  const internalData = await getInternalData();
+
+  const tickers = await internalData.getTickers(index);
+  const prices = await internalData.getPriceHistory(tickers[0]);
 
   res.send(prices);
 });
