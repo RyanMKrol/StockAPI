@@ -5,7 +5,9 @@ import getPriceHistory from './prices';
 import fetchFundamentalsData from './fundamentals';
 import { readCache, writeCache } from './private/cache';
 
+const CACHE_TIMEOUT_DAYS = 10;
 const TICKERS_CACHE_NAME = 'tickers';
+const FUNDAMENTALS_CACHE_NAME = 'fundamentals';
 
 /**
  * InternalData
@@ -47,13 +49,31 @@ class InternalData {
    * @param {string} index index
    * @returns {Array<string>} The fundamentals data
    */
-  async getFundamentals(index) {
+  getFundamentals(index) {
     if (typeof this.store.FUNDAMENTALS[index] === 'undefined') {
-      const tickers = await fetchFundamentalsData(index);
-      this.store.FUNDAMENTALS[index] = tickers;
+      throw Error('Data not found');
     }
 
     return this.store.FUNDAMENTALS[index];
+  }
+
+  /**
+   * Update the local and long term cache for fundamentals
+   */
+  async updateFundamentalsCache() {
+    const indexes = fetchSupportedIndexes();
+
+    const cacheData = await indexes.reduce(
+      async (acc, val) => acc.then(async (data) => {
+        /* eslint-disable-next-line no-param-reassign */
+        data[val] = await fetchFundamentalsData(val);
+        return data;
+      }),
+      Promise.resolve({}),
+    );
+
+    this.store.FUNDAMENTALS = cacheData;
+    writeCache(FUNDAMENTALS_CACHE_NAME, JSON.stringify(cacheData));
   }
 
   /**
@@ -103,9 +123,12 @@ async function getInternalData() {
     return instance;
   }
 
-  const tickersData = await readCache(TICKERS_CACHE_NAME, 10);
+  const tickersData = await readCache(TICKERS_CACHE_NAME, CACHE_TIMEOUT_DAYS);
+  const fundamentalsData = await readCache(FUNDAMENTALS_CACHE_NAME, CACHE_TIMEOUT_DAYS);
+
   const cacheData = {
     TICKERS: tickersData || {},
+    FUNDAMENTALS: fundamentalsData || {},
   };
 
   instance = new InternalData(cacheData);
