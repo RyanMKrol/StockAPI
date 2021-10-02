@@ -5,6 +5,8 @@ import logger from 'morgan';
 import createError from 'http-errors';
 import cors from 'cors';
 
+import scheduleUpdates from './daemon';
+
 import tickersRouter from './modules/routes/tickers';
 import indexesRouter from './modules/routes/indexes';
 import pricesRouter from './modules/routes/prices';
@@ -27,5 +29,7 @@ app.use('/fundamentals', fundamentalsRouter);
 app.use((req, res, next) => {
   next(createError(404));
 });
+
+scheduleUpdates();
 
 export default app;
