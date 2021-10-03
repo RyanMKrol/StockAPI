@@ -5,6 +5,7 @@ import moment from 'moment';
 import { DynamoReadBatch } from 'noodle-utils';
 import { AWS_CREDENTIALS } from '../constants';
 
+const TODAY_DATE_NORMALISATION_AMOUNT = 5;
 const TIME_PERIOD_MAPPING = Object.freeze({
   ONE_MONTH: 30,
   THREE_MONTH: 90,
@@ -26,11 +27,13 @@ const MAX_RETRY_DATES = 10;
  time periods, for each stock in the given index
  */
 async function generateHeatmap(tickers) {
-  console.log('fetching todays heatmap data');
-  const todayHeatmapData = await fetchHeatmapDataForDate(moment(), tickers);
-
-  console.log('todays heatmap data');
-  console.log(todayHeatmapData);
+  // we have to go back a few days from today becuase there's no way of guaranteeing
+  // that every stock will have data for today's date. Everything should have data
+  // starting from {TODAY_DATE_NORMALISATION_AMOUNT} days ago though
+  const todayHeatmapData = await fetchHeatmapDataForDate(
+    moment().subtract(TODAY_DATE_NORMALISATION_AMOUNT, 'days'),
+    tickers,
+  );
 
   const heatmapData = {};
 
@@ -38,24 +41,16 @@ async function generateHeatmap(tickers) {
     const currentTimePeriodKey = Object.keys(TIME_PERIOD_MAPPING)[i];
     const currentTimePeriodDays = TIME_PERIOD_MAPPING[currentTimePeriodKey];
 
-    console.log(`fetching data for this key ${currentTimePeriodKey}`);
     const targetDate = moment().subtract(currentTimePeriodDays, 'days');
 
-    console.log(`going for this target date ${targetDate}`);
     const targetHeatmapData = await fetchHeatmapDataForDate(targetDate, tickers);
 
-    console.log('raw data for underlying stuff');
-    console.log(targetHeatmapData);
     const data = generateHeatmapPrices(todayHeatmapData, targetHeatmapData);
-
-    console.log('data now');
-    console.log(data);
 
     heatmapData[currentTimePeriodKey] = {
       ...heatmapData[currentTimePeriodKey],
       data,
     };
-    console.log(heatmapData);
   }
 
   return heatmapData;
@@ -144,7 +139,9 @@ function createDynamoReadItems(date, tickers) {
  * Method used to find which date we should use to base our heatmap on. If
  * the date falls on a weekend, we won't find any data to use, so we trace
  * back up to a maximum until we find data. The assumption is that if we find
- * information for a price for one stock, we'll find it for all the others.
+ * information for a price for one stock, we'll find it for all the others. We
+ * can only make this assumption because we always start the search from at least
+ * {TODAY_DATE_NORMALISATION_AMOUNT} days away
  *
  * @param {object} batchReader Class used to read dynamo data
  * @param {moment} date Date used to start the search with
