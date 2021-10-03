@@ -13,7 +13,7 @@ const DYNAMO_TABLE_REGION = 'us-east-2';
 const WRITE_QUEUE = new DynamoWriteQueue(AWS_CREDENTIALS, DYNAMO_TABLE_REGION, DYNAMO_TABLE_NAME);
 
 const MAX_ITEM_WRITES = 600;
-const DYNAMO_STORAGE_WRITE_WAIT_MS = 2.5 * 1000 * 60;
+const DYNAMO_STORAGE_WRITE_WAIT_MS = 3 * 1000 * 60;
 
 const CACHE_TIMEOUT_DAYS = 1;
 const TICKERS_CACHE_NAME = 'tickers';
@@ -62,10 +62,11 @@ class InternalData {
       await this.updateTickersCache();
     }
 
-    const tickers = Object.values(this.store.TICKERS).reduce(
+    const tickersTotal = Object.values(this.store.TICKERS).reduce(
       (acc, indexTickers) => [...acc, ...indexTickers],
       [],
     );
+    const tickers = [...new Set(tickersTotal)].sort();
 
     // In total there are roughly 2,000 companies that need data. We want to get around
     // 2 years worth of data, call this 600 items per company. The dynamo write queue
@@ -78,8 +79,8 @@ class InternalData {
 
         if (data instanceof Error) {
           await MAIL_CLIENT.sendMail(
-            `Received an error for this ticker: ${ticker}, data: ${data}`,
-            data,
+            `Received an error for this ticker: ${ticker}`,
+            data.toString(),
           );
         } else {
           const truncatedData = data.slice(0, MAX_ITEM_WRITES);
@@ -90,6 +91,10 @@ class InternalData {
         // should take 600 / 5 * 1.2 this will take around 144 seconds, or just under
         // 2.5 minutes. We'll wait 2.5 minutes between fetches to ensure that the
         // queue doesn't just grow forever
+        // Scrap the above actually, Alphavantage has an API limit of 500 requests
+        // per day, so I have to wait 2.88 minutes between requests anyway. I've
+        // set this to 3 minutes now to account for any churn that might make some
+        // parts of this take longer than expected
         await sleep(DYNAMO_STORAGE_WRITE_WAIT_MS);
       }),
       Promise.resolve(),

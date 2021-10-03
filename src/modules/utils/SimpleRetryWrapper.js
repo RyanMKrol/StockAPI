@@ -1,4 +1,3 @@
-import util from 'util';
 import { sleep } from 'noodle-utils';
 import NOTIFICATION_CENTRE from './NotificationCentre';
 
@@ -69,11 +68,6 @@ class SimpleRetryWrapper {
 
       data = new Error('Could not retry');
     }
-
-    NOTIFICATION_CENTRE.info(
-      'Returning real data: %O',
-      util.inspect(data, { maxArrayLength: null, depth: 30 }),
-    );
 
     return data;
   }
