@@ -12,11 +12,13 @@ async function scheduleUpdates() {
 
   schedule.scheduleJob('0 0 0 */3 * *', async () => {
     MAIL_CLIENT.sendMail('Starting StockAPI cache update!', '');
-
     await internalData.updateFundamentalsCache();
+    MAIL_CLIENT.sendMail('Starting the tickers cache update!', '');
     await internalData.updateTickersCache();
+    MAIL_CLIENT.sendMail('Starting the prices cache update!', '');
     await internalData.updatePriceData();
-
+    MAIL_CLIENT.sendMail('Starting the heatmaps cache update!', '');
+    await internalData.updateHeatmapCache();
     MAIL_CLIENT.sendMail('Finished StockAPI cache update!', '');
   });
 }

@@ -4,7 +4,7 @@ import fetchTickers from './tickers';
 import { fetchSupportedIndexes } from './indexes';
 import getPriceHistory from './prices';
 import fetchFundamentalsData from './fundamentals';
-import fetchHeatmapData from './heatmaps';
+import generateHeatmap from './heatmaps';
 import { readCache, writeCache } from './private/cache';
 import { AWS_CREDENTIALS, MAIL_CLIENT } from '../constants';
 
@@ -58,11 +58,14 @@ class InternalData {
    * Update the local and long term cache for heatmaps
    */
   async updatePriceData() {
-    await this.updateTickersCache();
-    const tickers = Object.values(this.store.TICKERS).reduce((acc, indexTickers) => [
-      ...acc,
-      ...indexTickers,
-    ]);
+    if (Object.keys(this.store.TICKERS).length === 0) {
+      await this.updateTickersCache();
+    }
+
+    const tickers = Object.values(this.store.TICKERS).reduce(
+      (acc, indexTickers) => [...acc, ...indexTickers],
+      [],
+    );
 
     // In total there are roughly 2,000 companies that need data. We want to get around
     // 2 years worth of data, call this 600 items per company. The dynamo write queue
@@ -111,19 +114,19 @@ class InternalData {
    * Update the local and long term cache for heatmaps
    */
   async updateHeatmapCache() {
-    const indexes = fetchSupportedIndexes();
+    if (Object.keys(this.store.TICKERS).length === 0) {
+      await this.updateTickersCache();
+    }
 
-    const cacheData = await indexes.reduce(
-      async (acc, val) => acc.then(async (data) => {
-        /* eslint-disable-next-line no-param-reassign */
-        data[val] = await fetchHeatmapData(val);
-        return data;
+    await Object.keys(this.store.TICKERS).reduce(
+      (acc, val) => acc.then(async () => {
+        const tickersForIndex = this.store.TICKERS[val];
+        this.store.HEATMAPS[val] = await generateHeatmap(tickersForIndex);
       }),
-      Promise.resolve({}),
+      Promise.resolve(),
     );
 
-    this.store.HEATMAPS = cacheData;
-    writeCache(HEATMAPS_CACHE_NAME, JSON.stringify(cacheData));
+    writeCache(HEATMAPS_CACHE_NAME, JSON.stringify(this.store.HEATMAPS));
   }
 
   /**
