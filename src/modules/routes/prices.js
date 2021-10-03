@@ -1,6 +1,7 @@
 import express from 'express';
-import getInternalData from '../data';
 import middlewareRouter from './middleware';
+
+import getInternalData from '../data';
 
 const router = express.Router();
 

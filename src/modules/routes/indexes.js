@@ -1,4 +1,5 @@
 import express from 'express';
+
 import getInternalData from '../data';
 
 const router = express.Router();

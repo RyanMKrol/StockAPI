@@ -1,5 +1,6 @@
 import createError from 'http-errors';
 import express from 'express';
+
 import getInternalData from '../data';
 
 const router = express.Router();
